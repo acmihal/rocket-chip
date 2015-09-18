@@ -35,8 +35,7 @@ class DefaultConfig extends ChiselConfig (
       case MIFTagBits => Dump("MEM_TAG_BITS",
                           log2Up(site(NAcquireTransactors)+2) +
                           log2Up(site(NBanksPerMemoryChannel)) +
-                          log2Up(site(NMemoryChannels)) + /* TODO: Remove for multichannel Top */
-                          1)
+                          log2Up(site(NMemoryChannels)))
       case MIFDataBits => Dump("MEM_DATA_BITS", 128)
       case MIFAddrBits => Dump("MEM_ADDR_BITS", site(PAddrBits) - site(CacheBlockOffsetBits))
       case MIFDataBeats => site(TLDataBits)*site(TLDataBeats)/site(MIFDataBits)
