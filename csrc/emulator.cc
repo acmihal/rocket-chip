@@ -144,13 +144,12 @@ int main(int argc, char** argv)
       tile.Top__io_host_out_ready = LIT<1>(1);
     }
 
-    if (trace_count >= start) {
-      if (log)
-        tile.print(stderr);
+    if (log && trace_count >= start)
+      tile.print(stderr);
 
-      if (vcd)
-        tile.dump(vcdfile, trace_count);
-    }
+    // make sure we dump on cycle 0 to get dump_init
+    if (vcd && (trace_count == 0 || trace_count >= start))
+      tile.dump(vcdfile, trace_count);
 
     tile.clock_hi(LIT<1>(0));
     trace_count++;
