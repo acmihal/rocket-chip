@@ -161,17 +161,17 @@ int main(int argc, char** argv)
 
   if (htif->exit_code())
   {
-    fprintf(stderr, "*** FAILED *** (code = %d, seed %d) after %lld cycles\n", htif->exit_code(), random_seed, (long long)trace_count);
+    fprintf(stderr, "*** FAILED *** (code = %d, seed %d) after %ld cycles\n", htif->exit_code(), random_seed, trace_count);
     ret = htif->exit_code();
   }
   else if (trace_count == max_cycles)
   {
-    fprintf(stderr, "*** FAILED *** (timeout, seed %d) after %lld cycles\n", random_seed, (long long)trace_count);
+    fprintf(stderr, "*** FAILED *** (timeout, seed %d) after %ld cycles\n", random_seed, trace_count);
     ret = 2;
   }
   else if (log)
   {
-    fprintf(stderr, "Completed after %lld cycles\n", trace_count);
+    fprintf(stderr, "Completed after %ld cycles\n", trace_count);
   }
 
   delete htif;
