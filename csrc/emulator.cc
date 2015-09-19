@@ -21,6 +21,7 @@ int main(int argc, char** argv)
   unsigned random_seed = (unsigned)time(NULL) ^ (unsigned)getpid();
   uint64_t max_cycles = -1;
   uint64_t trace_count = 0;
+  uint64_t start = 0;
   int ret = 0;
   const char* vcd = NULL;
   const char* loadmem = NULL;
@@ -46,6 +47,8 @@ int main(int argc, char** argv)
       max_cycles = atoll(argv[i]+12);
     else if (arg.substr(0, 9) == "+loadmem=")
       loadmem = argv[i]+9;
+    else if (arg.substr(0, 7) == "+start=")
+      start = atoll(argv[i]+7);
   }
 
   const int disasm_len = 24;
@@ -141,11 +144,13 @@ int main(int argc, char** argv)
       tile.Top__io_host_out_ready = LIT<1>(1);
     }
 
-    if (log)
-      tile.print(stderr);
+    if (trace_count >= start) {
+      if (log)
+        tile.print(stderr);
 
-    if (vcd)
-      tile.dump(vcdfile, trace_count);
+      if (vcd)
+        tile.dump(vcdfile, trace_count);
+    }
 
     tile.clock_hi(LIT<1>(0));
     trace_count++;
@@ -163,6 +168,10 @@ int main(int argc, char** argv)
   {
     fprintf(stderr, "*** FAILED *** (timeout, seed %d) after %lld cycles\n", random_seed, (long long)trace_count);
     ret = 2;
+  }
+  else if (log)
+  {
+    fprintf(stderr, "Completed after %lld cycles\n", trace_count);
   }
 
   delete htif;
