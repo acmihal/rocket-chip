@@ -24,4 +24,4 @@
 	url = https://github.com/ucb-bar/zscale
 [submodule "junctions"]
 	path = junctions
-	url = https://github.com/ucb-bar/junctions
+	url = https://github.com/acmihal/junctions
