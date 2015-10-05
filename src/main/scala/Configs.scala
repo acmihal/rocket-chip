@@ -225,6 +225,19 @@ class WithZscale extends ChiselConfig(
   }
 )
 
+class WithXcam extends ChiselConfig(
+    (pname,site,here) => pname match {
+        case BuildZscale => {
+            (r: Bool) => Module(new Zscale(r), {case TLId => "L1ToL2"})
+        }
+        case UseZscale => true
+        case IBRAMCapacity => Dump("IBRAM_CAPACITY", 16*1024)
+        case DBRAMCapacity => Dump("DBRAM_CAPACITY", 16*1024)
+    }
+)
+
+class XcamConfig extends ChiselConfig(new WithXcam ++ new DefaultConfig)
+
 class ZscaleConfig extends ChiselConfig(new WithZscale ++ new DefaultConfig)
 
 class FPGAConfig extends ChiselConfig (
