@@ -19,6 +19,7 @@ class XcamTop extends Module {
         val leds = Bits(OUTPUT, 8)
         val switches = Bits(INPUT, 8)
         val ubus = new HASTIMasterIO
+        val ddr = new DDRIO
     }
 
     val core = params(BuildZscale)(io.reset)
@@ -34,14 +35,18 @@ class XcamTop extends Module {
 
     val dmem_afn = (addr: UInt) => addr(31,14) === UInt(0)
     val pbus_afn = (addr: UInt) => addr(31,14) === UInt(1)
+    val led_afn  = (addr: UInt) => addr(31,14) === UInt(1) && addr(13, 12) === UInt(0)
     val uart_afn = (addr: UInt) => addr(31,14) === UInt(2)
-    val led_afn =  (addr: UInt) => addr(31,14) === UInt(1) && addr(13, 12) === UInt(0)
-    val dbus = Module(new HASTIBus(Seq(dmem_afn, pbus_afn, uart_afn)))
-    val padapter = Module(new HASTItoPOCIBridge)
-    val pbus = Module(new POCIBus(Seq(led_afn)))
+    val ddr_afn  = (addr: UInt) => addr(31,28) === UInt(1)
 
+    val dbus = Module(new HASTIBus(Seq(dmem_afn, pbus_afn, uart_afn, ddr_afn)))
     dbus.io.master <> core.io.dmem
 
+    val dmem = Module(new HASTISRAM(params(DBRAMCapacity)/4))
+    dmem.io <> dbus.io.slaves(0)
+
+    val padapter = Module(new HASTItoPOCIBridge)
+    val pbus = Module(new POCIBus(Seq(led_afn)))
     padapter.io.in <> dbus.io.slaves(1)
     pbus.io.master <> padapter.io.out
 
@@ -50,10 +55,11 @@ class XcamTop extends Module {
     gpio.io.pin.i <> io.switches
     gpio.io.pin.o <> io.leds
 
-    val dmem = Module(new HASTISRAM(params(DBRAMCapacity)/4))
-    dmem.io <> dbus.io.slaves(0)
-
     val uadapter = Module(new HASTISlaveToMaster)
     uadapter.io.in <> dbus.io.slaves(2)
     uadapter.io.out <> io.ubus
+
+    val ddr = Module(new HASTIDDR)
+    ddr.io.in <> dbus.io.slaves(3)
+    ddr.io.out <> io.ddr
 }
